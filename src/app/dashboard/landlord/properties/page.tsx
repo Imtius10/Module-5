@@ -45,24 +45,6 @@ export default function LandlordPropertiesPage() {
     queryFn: () => fetchLandlordProperties(page),
   });
 
-  const toggleAvailability = useMutation({
-    mutationFn: async (property: Property) => {
-      await api.put(`/api/landlord/properties/${property.id}`, {
-        isAvailable: property.isAvailable === false,
-      });
-      return { id: property.id, next: property.isAvailable === false };
-    },
-    onSuccess: (result) => {
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.landlordProperties(page),
-      });
-      toast.success(
-        result.next ? "Listing is now open for requests" : "Listing paused"
-      );
-    },
-    onError: (error) => toast.error(errorMessage(error)),
-  });
-
   const removeProperty = useMutation({
     mutationFn: async (id: string) => {
       await api.delete(`/api/landlord/properties/${id}`);
@@ -98,11 +80,29 @@ export default function LandlordPropertiesPage() {
           {query.isLoading ? (
             <div className="space-y-3 p-5">
               {Array.from({ length: 5 }).map((_, index) => (
-                <Skeleton key={index} className="h-14 w-full rounded-lg" />
+                <div key={index} className="flex items-center gap-4 p-3">
+                  <Skeleton className="h-12 w-12 rounded-lg bg-muted" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4 rounded" />
+                    <Skeleton className="h-3 w-1/2 rounded" />
+                  </div>
+                  <Skeleton className="h-6 w-24 rounded-full" />
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                  <div className="flex gap-2 ml-4">
+                    <Skeleton className="h-8 w-8 rounded" />
+                    <Skeleton className="h-8 w-8 rounded" />
+                    <Skeleton className="h-8 w-8 rounded" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : query.isError ? (
-            <div className="p-5">
+            <div className="p-10 text-center">
+              <div className="mx-auto w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+                <svg className="size-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
               <EmptyState
                 title="Listings couldn't be loaded"
                 description={errorMessage(query.error)}
@@ -110,9 +110,11 @@ export default function LandlordPropertiesPage() {
               />
             </div>
           ) : items.length === 0 ? (
-            <div className="p-5">
+            <div className="p-10 text-center">
+              <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <Plus className="size-8 text-primary" />
+              </div>
               <EmptyState
-                icon={Plus}
                 title="You have no listings yet"
                 description="Publish your first property and start receiving requests."
                 action={
@@ -132,7 +134,7 @@ export default function LandlordPropertiesPage() {
                     <TableHead>Property</TableHead>
                     <TableHead>Rent</TableHead>
                     <TableHead>Category</TableHead>
-                    <TableHead>Availability</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -140,51 +142,45 @@ export default function LandlordPropertiesPage() {
                   {items.map((property) => {
                     const available = property.isAvailable !== false;
                     return (
-                      <TableRow key={property.id}>
-                        <TableCell>
+                      <TableRow
+                        key={property.id}
+                        className="hover:bg-muted/30 transition-colors border-b border-border/50 last:border-0"
+                      >
+                        <TableCell className="py-4">
                           <Link
                             href={`/properties/${property.id}`}
-                            className="font-medium hover:text-primary"
+                            className="font-medium text-foreground hover:text-primary transition-colors"
                           >
                             {property.title}
                           </Link>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground mt-1">
                             {property.location}
                           </p>
                         </TableCell>
-                        <TableCell>{formatPrice(property.price)}</TableCell>
-                        <TableCell className="capitalize">
-                          {property.category}
+                        <TableCell className="py-4 font-medium text-foreground">
+                          {formatPrice(property.price)}
                         </TableCell>
-                        <TableCell>
-                          <button
-                            type="button"
-                            disabled={toggleAvailability.isPending}
-                            onClick={() => toggleAvailability.mutate(property)}
-                            className="inline-flex items-center gap-2 rounded-full text-sm"
+                        <TableCell className="py-4">
+                          <Badge
+                            variant="outline"
+                            className="capitalize bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 transition-colors"
                           >
-                            <span
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                available
-                                  ? "bg-primary"
-                                  : "bg-muted-foreground/30"
-                              }`}
-                            >
-                              <span
-                                className={`inline-block size-4 transform rounded-full bg-white transition-transform ${
-                                  available ? "translate-x-6" : "translate-x-1"
-                                }`}
-                              />
-                            </span>
-                            <Badge
-                              variant={available ? "default" : "secondary"}
-                              className="capitalize"
-                            >
-                              {available ? "Available" : "Paused"}
-                            </Badge>
-                          </button>
+                            {property.category}
+                          </Badge>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="py-4">
+                          <Badge
+                            variant={available ? "default" : "secondary"}
+                            className={
+                              available
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                            }
+                          >
+                            {available ? "Available" : "Paused"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="py-4 text-right">
                           <div className="flex justify-end gap-1.5">
                             <Button asChild variant="ghost" size="icon">
                               <Link href={`/properties/${property.id}`}>
