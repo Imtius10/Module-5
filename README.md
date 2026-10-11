@@ -116,11 +116,22 @@ src/
 
 ## Deployment
 
+Both apps deploy from this repository:
+
+| App | Vercel project | Production URL | Deploy from |
+| --- | --- | --- | --- |
+| Frontend | `rentnest` | https://rentnest-eta.vercel.app | repo root |
+| Backend (API) | `rent-nest-api` | https://rent-nest-api-seven.vercel.app | `backend/` |
+
 ```bash
-# Vercel (recommended)
-npx vercel            # framework auto-detected as Next.js
+vercel --prod                # frontend (run at the repo root)
+cd backend && vercel --prod  # API
 ```
 
-Set `NEXT_PUBLIC_API_URL` (or `API_PROXY_URL`) in the project's environment variables so the `/api/*` rewrite knows where to forward requests. CORS on the API is bypassed by that proxy; you only need `FRONTEND_URL` on the API side for Stripe redirects (`/payment/success`).
+- **Frontend env:** `NEXT_PUBLIC_API_URL` / `API_PROXY_URL` → API base URL (target of the `/api/*` rewrite).
+- **Backend env:** `DATABASE_URL`, JWT secrets, Stripe keys, `FRONTEND_URL` (Stripe redirects → `https://rentnest-eta.vercel.app`), `CORS_ORIGIN` (`https://rentnest-eta.vercel.app,http://localhost:3000`).
+- `backend/.vercelignore` keeps `.env*`, `node_modules` and `generated/` out of the upload.
+
+CORS on the API is bypassed by the frontend proxy, so the frontend needs no CORS allow-listing; `FRONTEND_URL` is only for Stripe's return redirect (`/payment/success`).
 
 See `API_INTEGRATION.md` for the full endpoint contract, auth flow and error handling.
