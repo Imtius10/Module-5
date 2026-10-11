@@ -34,6 +34,7 @@ import { PropertyReviews } from "@/components/properties/property-reviews";
 import { useApiMutation } from "@/hooks/use-api-mutation";
 import { formatPrice, timeAgo } from "@/lib/format";
 import { propertyGallery } from "@/lib/images";
+import { absoluteUrl } from "@/lib/site";
 import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/store/auth";
 import type { Property, RentalRequest } from "@/lib/types";
@@ -133,8 +134,37 @@ export function PropertyDetails({ property }: { property: Property }) {
     </div>
   );
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": property.category === "office" ? "Office" : "Residence",
+    name: property.title,
+    description: property.description,
+    url: absoluteUrl(`/properties/${property.id}`),
+    ...(gallery[0] ? { image: gallery[0] } : {}),
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: property.location,
+    },
+    offers: {
+      "@type": "Offer",
+      price: property.price,
+      priceCurrency: "BDT",
+      availability: available
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+    },
+  };
+
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+      <script
+        // Structured data for search engines; never rendered visually.
+        className="hidden"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <div className="space-y-8">
         {galleryNode}
 
