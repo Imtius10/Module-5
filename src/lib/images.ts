@@ -94,3 +94,8 @@ export function propertyImage(property: {
 }): string {
   return propertyGallery(property)[0];
 }
+
+/** Cover image used by category tiles on the home page. */
+export function categoryImage(category: string): string {
+  return fallbackList(category)[0];
+}
