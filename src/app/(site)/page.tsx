@@ -6,6 +6,11 @@ import {
   HowItWorks,
   LandlordCTA,
 } from "@/components/home/sections";
+import {
+  StatsBand,
+  Testimonials,
+  WhyRentNest,
+} from "@/components/home/social-proof";
 
 export const metadata: Metadata = {
   title: "RentNest — Find & List Rental Properties with Ease",
@@ -18,7 +23,10 @@ export default function HomePage() {
       <Categories />
       <div id="featured-anchor" />
       <FeaturedProperties />
+      <WhyRentNest />
       <HowItWorks />
+      <StatsBand />
+      <Testimonials />
       <LandlordCTA />
     </>
   );

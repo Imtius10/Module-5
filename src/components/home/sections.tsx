@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
+  ArrowRight,
   Building2,
   Home,
   KeyRound,
@@ -15,7 +16,9 @@ import {
   Wallet,
 } from "lucide-react";
 import { fetchCategories, queryKeys } from "@/lib/queries";
+import { categoryImage } from "@/lib/images";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   apartment: Building2,
@@ -37,18 +40,29 @@ export function Categories() {
   const visible = categories.slice(0, 6);
 
   return (
-    <section className="border-y border-border/60 bg-card/40 py-14">
+    <section className="relative border-y border-border/60 bg-muted/30 py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-primary">Browse by need</p>
-            <h2 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
+            <p className="inline-flex items-center gap-2 text-sm font-medium text-primary">
+              <span className="size-1.5 rounded-full bg-primary" /> Browse by need
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
               Popular categories
             </h2>
+            <p className="mt-2 max-w-lg text-sm text-muted-foreground">
+              Jump straight into the kind of home you are looking for — every tile
+              opens a pre-filtered search.
+            </p>
           </div>
+          <Button asChild variant="ghost" className="hidden sm:inline-flex">
+            <Link href="/properties">
+              All listings <ArrowRight className="size-4" />
+            </Link>
+          </Button>
         </div>
 
-        <div className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {visible.map((category, index) => {
             const Icon = ICONS[category.toLowerCase()] ?? Home;
             return (
@@ -58,18 +72,36 @@ export function Categories() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.35, delay: index * 0.06 }}
+                className="h-full"
               >
                 <Link
                   href={`/properties?category=${encodeURIComponent(category)}`}
                   className={cn(
-                    "group flex h-32 flex-col items-center justify-center gap-3 rounded-2xl border border-border/70 bg-card",
-                    "transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+                    "group relative flex h-44 flex-col justify-end overflow-hidden rounded-3xl border border-border/70 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   )}
                 >
-                  <span className="flex size-11 items-center justify-center rounded-xl bg-accent text-accent-foreground transition-colors group-hover:bg-brand-gradient group-hover:text-white">
-                    <Icon className="size-5" />
+                  <Image
+                    src={categoryImage(category)}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+
+                  <span className="absolute left-3 top-3 flex size-9 items-center justify-center rounded-xl bg-white/15 text-white backdrop-blur transition-colors group-hover:bg-brand-gradient">
+                    <Icon className="size-4" />
                   </span>
-                  <span className="text-sm font-medium capitalize">{category}</span>
+
+                  <div className="relative p-4">
+                    <p className="text-sm font-semibold capitalize text-white">
+                      {category}
+                    </p>
+                    <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-white/70 transition-colors group-hover:text-white">
+                      Explore <ArrowRight className="size-3" />
+                    </p>
+                  </div>
                 </Link>
               </motion.div>
             );
