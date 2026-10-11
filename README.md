@@ -2,6 +2,21 @@
 
 A production-ready rental marketplace UI built with **Next.js (App Router)**, TypeScript, Tailwind CSS v4, shadcn/ui, Framer Motion, TanStack Query and Zustand. It talks to the RentNest REST API and ships role-based dashboards for **tenants**, **landlords** and **admins**, plus Stripe Checkout payments.
 
+## Repository layout
+
+```
+.
+├── src/               # Next.js app (frontend)
+├── public/            # static assets
+├── scripts/smoke.mjs  # API + route smoke tests
+├── backend/           # RentNest REST API (Express + Prisma + Stripe)
+│   ├── src/           # modules: user, properties, rentalRequest, payment, landlord, admin, review
+│   ├── prisma/        # schema, migrations, seed
+│   ├── api/index.js   # bundled serverless entry used by Vercel
+│   └── vercel.json
+└── README.md / API_INTEGRATION.md
+```
+
 ## Quick start
 
 ```bash
@@ -17,6 +32,20 @@ npm run dev                  # http://localhost:3000
 | `NEXT_PUBLIC_API_URL` | `https://rent-nest-api-seven.vercel.app` | Base URL of the RentNest API (no trailing slash) |
 
 Local backend instead? Point it at `http://localhost:5000`.
+
+### Running the API from `backend/`
+
+```bash
+cd backend
+npm install
+npx prisma generate        # client is generated locally (gitignored)
+npx prisma migrate deploy  # apply migrations to DATABASE_URL
+# .env needs: DATABASE_URL, JWT secrets, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
+#             CORS_ORIGIN, FRONTEND_URL
+npm run dev                # http://localhost:5000
+```
+
+Useful backend scripts: `npm run build` (tsc), `npm run start`, `npm run seed` (demo data), `npm run stripe:webhook` (local Stripe events).
 
 ## Demo credentials
 
