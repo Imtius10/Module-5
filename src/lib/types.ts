@@ -93,14 +93,14 @@ export interface Review {
 }
 
 export interface AdminStatistics {
-  totalUsers: number;
-  totalLandlords: number;
-  totalTenants: number;
-  totalProperties: number;
-  pendingRequests: number;
-  approvedRequests: number;
-  rejectedRequests: number;
-  [key: string]: number;
+  users: { total: number; landlords: number; tenants: number };
+  properties: { total: number };
+  rentalRequests: {
+    total: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+  };
 }
 
 export interface PageMeta {
