@@ -4,30 +4,12 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowRight,
-  Building2,
-  Home,
-  KeyRound,
-  Landmark,
-  ShieldCheck,
-  Tent,
-  TreePine,
-  Wallet,
-} from "lucide-react";
+import { ArrowRight, KeyRound, ShieldCheck, Wallet } from "lucide-react";
 import { fetchCategories, queryKeys } from "@/lib/queries";
 import { categoryImage } from "@/lib/images";
+import { categoryIcon } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-
-const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  apartment: Building2,
-  flat: Building2,
-  house: Home,
-  villa: TreePine,
-  studio: Tent,
-  office: Landmark,
-};
 
 export function Categories() {
   const { data = [] } = useQuery({
@@ -64,7 +46,7 @@ export function Categories() {
 
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {visible.map((category, index) => {
-            const Icon = ICONS[category.toLowerCase()] ?? Home;
+            const Icon = categoryIcon(category);
             return (
               <motion.div
                 key={category}

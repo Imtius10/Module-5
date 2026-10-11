@@ -31,7 +31,9 @@ import { Pager } from "@/components/ui/pager";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { errorMessage } from "@/lib/api";
 import { fetchCategories, fetchProperties, queryKeys } from "@/lib/queries";
+import { categoryIcon } from "@/lib/categories";
 import type { PageMeta } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const CATEGORY_OPTIONS = ["apartment", "house", "villa", "studio", "office"];
 
@@ -281,6 +283,35 @@ export function PropertiesBrowser() {
               <div className="mt-4">{filterPanel}</div>
             </SheetContent>
           </Sheet>
+        </div>
+
+        {/* Quick category chips */}
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          {[{ value: "all", label: "All homes" }, ...categoryOptions.map((option) => ({ value: option, label: option }))].map(
+            (chip) => {
+              const Icon = categoryIcon(chip.value);
+              const active = category === chip.value;
+              return (
+                <button
+                  key={chip.value}
+                  type="button"
+                  onClick={() => {
+                    setCategory(chip.value);
+                    resetPage();
+                  }}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium capitalize transition-all",
+                    active
+                      ? "border-transparent bg-brand-gradient text-white shadow-md shadow-emerald-600/20"
+                      : "border-border bg-card text-muted-foreground hover:-translate-y-0.5 hover:border-primary/40 hover:text-foreground"
+                  )}
+                >
+                  <Icon className="size-3.5" />
+                  {chip.label}
+                </button>
+              );
+            }
+          )}
         </div>
 
         {isLoading ? (
