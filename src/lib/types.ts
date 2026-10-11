@@ -54,6 +54,19 @@ export interface RentalRequest {
   payment?: Payment | null;
 }
 
+export interface PaymentReference {
+  id: string;
+  propertyId: string;
+  tenantId: string;
+  status: RentalStatus;
+  property?: {
+    id: string;
+    title: string;
+    location: string;
+    price: number;
+  } | null;
+}
+
 export interface Payment {
   id: string;
   rentalRequestId: string;
@@ -63,6 +76,7 @@ export interface Payment {
   status: PaymentStatus;
   createdAt: string;
   updatedAt: string;
+  rentalRequest?: PaymentReference | null;
 }
 
 export interface Review {

@@ -1,4 +1,4 @@
-import type { RentalStatus, UiRentalStatus, Payment } from "@/lib/types";
+import type { RentalStatus, UiRentalStatus, PaymentStatus } from "@/lib/types";
 
 /**
  * The API models requests as PENDING | APPROVED | REJECTED.
@@ -7,7 +7,7 @@ import type { RentalStatus, UiRentalStatus, Payment } from "@/lib/types";
  */
 export function toUiStatus(
   status: RentalStatus,
-  payment?: Payment | null
+  payment?: { status: PaymentStatus } | null
 ): UiRentalStatus {
   if (status === "APPROVED" && payment?.status === "PAID") return "ACTIVE";
   return status;
