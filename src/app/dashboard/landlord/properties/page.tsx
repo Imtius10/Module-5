@@ -170,11 +170,11 @@ export default function LandlordPropertiesPage() {
                         </TableCell>
                         <TableCell className="py-4">
                           <Badge
-                            variant={available ? "default" : "secondary"}
+                            variant="outline"
                             className={
                               available
-                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                                : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/30"
+                                : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/30"
                             }
                           >
                             {available ? "Available" : "Paused"}
