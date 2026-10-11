@@ -132,6 +132,10 @@ export async function apiFetch<T>(
     if (token) {
       return apiFetch<T>(path, { ...options, _retried: true });
     }
+    // No refresh possible: the session is truly gone -> sign the UI out.
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("rn:session-expired"));
+    }
   }
 
   let json: ApiEnvelope<T> | null = null;
