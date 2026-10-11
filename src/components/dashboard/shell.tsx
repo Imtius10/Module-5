@@ -239,7 +239,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main id="main-content" tabIndex={-1} className="flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8">{children}</main>
 
         <footer className="border-t border-border/60 px-4 py-4 text-center text-xs text-muted-foreground sm:px-6">
           RentNest dashboard · signed in as {user.email}
