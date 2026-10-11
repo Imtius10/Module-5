@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The API has its own linting/tsc setup:
+    "backend/**",
+    "**/generated/**",
+    "node_modules/**",
   ]),
 ]);
 
