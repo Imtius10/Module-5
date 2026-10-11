@@ -122,14 +122,15 @@ async function run() {
       token: adminToken,
     });
     check(
-      "GET /api/admin/rentals (includes payment state)",
+      "GET /api/admin/rentals",
       rentals.res.ok && Array.isArray(rentals.data?.data),
       `status ${rentals.res.status}`
     );
     const rows = rentals.data?.data ?? [];
     check(
-      "every rental row carries a payment relation",
-      rows.length > 0 && rows.every((r) => "payment" in r),
+      "admin rentals include property + tenant refs",
+      rows.length > 0 &&
+        rows.every((r) => r.property?.title && r.tenant?.email),
       rows.map((r) => Object.keys(r).join(",")).join(" | ")
     );
   }
@@ -175,12 +176,11 @@ async function run() {
     const requests = await json("/api/landlord/requests?page=1&limit=5", {
       token: landlordToken,
     });
-    const requestRows = requests.data?.data ?? [];
     check(
-      "GET /api/landlord/requests (includes payment state)",
+      "GET /api/landlord/requests",
       requests.res.ok &&
-        Array.isArray(requestRows) &&
-        requestRows.every((r) => "payment" in r),
+        Array.isArray(requests.data?.data) &&
+        (requests.data?.data ?? []).every((r) => r.property && r.tenant),
       `status ${requests.res.status}`
     );
   }
