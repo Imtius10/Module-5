@@ -92,24 +92,19 @@ const updateProperty = catchAsync(
       isAvailable,
     } = req.body;
 
+    const updateData: Record<string, any> = {};
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (price !== undefined) updateData.price = Number(price);
+    if (location !== undefined) updateData.location = location;
+    if (category !== undefined) updateData.category = category;
+    if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+    if (typeof isAvailable === "boolean") updateData.isAvailable = isAvailable;
+
     const property = await propertyService.updateProperty(
       id as string,
       req.user.id,
-      {
-        title,
-        description,
-        price:
-          price !== undefined
-            ? Number(price)
-            : undefined,
-        location,
-        category,
-        imageUrl,
-        isAvailable:
-          typeof isAvailable === "boolean"
-            ? isAvailable
-            : undefined,
-      }
+      updateData
     );
 
     sendResponse(res, {

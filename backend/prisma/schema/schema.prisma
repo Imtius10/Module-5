@@ -11,3 +11,121 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum RentalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum UserRole {
+  TENANT
+  LANDLORD
+  ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  password     String
+  role         UserRole   @default(TENANT)
+  activeStatus UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  properties     Property[]      @relation("LandlordProperties")
+  rentalRequests RentalRequest[] @relation("TenantRequests")
+  reviews        Review[]
+  payments       Payment[]
+}
+
+model Property {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       Float
+  location    String
+  category    String
+  imageUrl    String?
+  isAvailable Boolean   @default(true)
+  landlordId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  landlord User @relation("LandlordProperties", fields: [landlordId], references: [id], onDelete: Cascade)
+
+  rentalRequests RentalRequest[]
+  reviews Review[]
+}
+
+model RentalRequest {
+  id         String       @id @default(uuid())
+  propertyId String
+  tenantId   String
+  message    String?
+  status     RentalStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  tenant User @relation("TenantRequests", fields: [tenantId], references: [id])
+  reviews Review[]
+  payment Payment?
+
+  @@index([propertyId])
+  @@index([tenantId])
+}
+
+model Review {
+  id              String   @id @default(uuid())
+  rentalRequestId String   @unique
+  propertyId      String
+  tenantId        String
+  rating          Int
+  comment         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  rentalRequest RentalRequest @relation(fields: [rentalRequestId], references: [id], onDelete: Cascade)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenant User @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([tenantId])
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  rentalRequestId String        @unique
+  tenantId        String
+
+  amount          Float
+  transactionId   String?       @unique
+  status          PaymentStatus @default(PENDING)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+
+  rentalRequest RentalRequest @relation(fields: [rentalRequestId], references: [id], onDelete: Cascade)
+
+  tenant User @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([status])
+}
