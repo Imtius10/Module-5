@@ -29,9 +29,17 @@ npm run dev                  # http://localhost:3000
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_API_URL` | `https://rent-nest-api-seven.vercel.app` | Base URL of the RentNest API (no trailing slash) |
+| `NEXT_PUBLIC_API_URL` | `https://rent-nest-api-seven.vercel.app` | Base URL of the RentNest API (no trailing slash). Used as the target of the `/api/*` rewrite and for server-side fetches. |
 
 Local backend instead? Point it at `http://localhost:5000`.
+
+### How the browser reaches the API
+
+Every client-side request goes to **same-origin `/api/*`** and is forwarded to the API by the rewrite in `next.config.ts`. That means:
+
+- no CORS configuration is required on the API (`CORS_ORIGIN` only matters for other origins, e.g. Stripe redirects),
+- the UI keeps working even if the API host does not allow the frontend origin,
+- the `Authorization` header and JSON bodies are proxied through unchanged.
 
 ### Running the API from `backend/`
 
@@ -113,6 +121,6 @@ src/
 npx vercel            # framework auto-detected as Next.js
 ```
 
-Set `NEXT_PUBLIC_API_URL` in the project's environment variables, and remember to add the deployed origin to the API's `CORS_ORIGIN` / `FRONTEND_URL` (Stripe redirects back to `FRONTEND_URL/payment/success`).
+Set `NEXT_PUBLIC_API_URL` (or `API_PROXY_URL`) in the project's environment variables so the `/api/*` rewrite knows where to forward requests. CORS on the API is bypassed by that proxy; you only need `FRONTEND_URL` on the API side for Stripe redirects (`/payment/success`).
 
 See `API_INTEGRATION.md` for the full endpoint contract, auth flow and error handling.

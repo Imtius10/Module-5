@@ -4,6 +4,8 @@ Everything the UI knows about the backend lives in `src/lib/` (client, session, 
 
 **Base URL:** `NEXT_PUBLIC_API_URL` (default `https://rent-nest-api-seven.vercel.app`, local: `http://localhost:5000`).
 
+> **Transport:** the browser never calls that URL directly. `src/lib/api.ts` builds same-origin paths (`/api/...`) in the browser and the rewrite in `next.config.ts` forwards them to the API host server-side, so the API's CORS/CORP headers are irrelevant. The absolute base URL is only used for SSR fetches (e.g. `/properties/[id]`) and as the rewrite target.
+
 ## 1. Response envelope & errors
 
 Every endpoint answers with:
