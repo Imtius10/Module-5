@@ -10,6 +10,14 @@ export const API_URL = (
   process.env.NEXT_PUBLIC_API_URL || "https://rent-nest-api-seven.vercel.app"
 ).replace(/\/+$/, "");
 
+/**
+ * In the browser every request stays on this origin and is forwarded to the
+ * API by the Next rewrite in `next.config.ts`. That keeps the app immune to
+ * cross-origin (CORS / CORP) restrictions on the API host.
+ * On the server (SSR) there is no origin to share, so we call the API directly.
+ */
+const BASE = typeof window === "undefined" ? API_URL : "";
+
 export class ApiError extends Error {
   status: number;
   details?: unknown;
@@ -35,7 +43,7 @@ export interface RequestOptions {
 }
 
 function buildUrl(path: string, query?: Record<string, QueryValue>): string {
-  const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
+  const url = `${BASE}${path.startsWith("/") ? path : `/${path}`}`;
   if (!query) return url;
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
@@ -53,7 +61,7 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refreshToken) return null;
 
   try {
-    const res = await fetch(`${API_URL}/api/auth/refresh-token`, {
+    const res = await fetch(`${BASE}/api/auth/refresh-token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -120,7 +128,7 @@ export async function apiFetch<T>(
   } catch (error) {
     if ((error as Error).name === "AbortError") throw error;
     throw new ApiError(
-      "Could not reach the server. Check your connection and try again.",
+      "Couldn't reach the RentNest API. Check your connection or the API_URL used by the /api rewrite in next.config.ts and try again.",
       0,
       error
     );
