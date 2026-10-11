@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { OfflineBanner } from "@/components/offline-banner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { clearSession } from "@/lib/session";
 import { useAuth } from "@/store/auth";
@@ -85,6 +86,7 @@ export function Providers({ children }: { children: ReactNode }) {
           </SessionWatcher>
         </TooltipProvider>
         <Toaster position="top-right" richColors closeButton />
+        <OfflineBanner />
       </ThemeProvider>
     </QueryClientProvider>
   );
