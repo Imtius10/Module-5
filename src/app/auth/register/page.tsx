@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useWatch, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { ArrowRight, Eye, EyeOff, Home, UserPlus, Users } from "lucide-react";
@@ -49,7 +49,7 @@ function RegisterForm() {
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     setError,
     formState: { errors, isSubmitting },
   } = useForm<RegisterInput>({
@@ -65,8 +65,8 @@ function RegisterForm() {
     },
   });
 
-  const selectedRole = watch("role");
-  const termsAccepted = watch("terms");
+  const selectedRole = useWatch({ control, name: "role" });
+  const termsAccepted = useWatch({ control, name: "terms" });
 
   const onSubmit = async (values: RegisterInput) => {
     try {

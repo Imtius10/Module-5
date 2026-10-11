@@ -22,7 +22,7 @@ interface AuthState {
   resetNotice: () => void;
 }
 
-export const useAuth = create<AuthState>((set, get) => ({
+export const useAuth = create<AuthState>((set) => ({
   user: typeof window === "undefined" ? null : readSessionUser(),
   status: typeof window === "undefined" ? "loading" : "loading",
   notice: null,

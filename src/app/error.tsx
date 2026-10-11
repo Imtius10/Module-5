@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useEffect } from "react";
 import { AlertOctagon, Home, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,9 +35,9 @@ export default function RouteError({
           <RefreshCw className="size-4" /> Try again
         </Button>
         <Button asChild variant="outline">
-          <a href="/">
+          <Link href="/">
             <Home className="size-4" /> Back home
-          </a>
+          </Link>
         </Button>
       </div>
     </div>

@@ -27,7 +27,7 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export function Categories() {
-  const { data = [], isLoading } = useQuery({
+  const { data = [] } = useQuery({
     queryKey: queryKeys.categories,
     queryFn: fetchCategories,
     staleTime: 5 * 60_000,
@@ -163,7 +163,7 @@ export function LandlordCTA() {
             variant="outline"
             className="rounded-full border-white/50 bg-transparent text-white hover:bg-white/10 hover:text-white"
           >
-            <Link href="/properties">See what's trending</Link>
+            <Link href="/properties">See what&apos;s trending</Link>
           </Button>
         </div>
       </div>

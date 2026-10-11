@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle({ className }: { className?: string }) {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  // Hydration-safe: server snapshot false, client snapshot true.
+  const mounted = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false
+  );
 
   const isDark = resolvedTheme === "dark";
 
@@ -28,4 +31,8 @@ export function ThemeToggle({ className }: { className?: string }) {
       )}
     </Button>
   );
+}
+
+function subscribeNever() {
+  return () => {};
 }

@@ -1,4 +1,4 @@
-import type { ApiEnvelope, PageMeta } from "@/lib/types";
+import type { ApiEnvelope } from "@/lib/types";
 import {
   ACCESS_TOKEN_KEY,
   getAccessToken,

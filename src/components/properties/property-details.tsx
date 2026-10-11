@@ -8,7 +8,6 @@ import {
   Building2,
   CalendarDays,
   EyeOff,
-  ImageOff,
   Mail,
   MapPin,
   MessageSquareText,

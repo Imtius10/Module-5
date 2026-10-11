@@ -56,7 +56,9 @@ export function PropertiesBrowser() {
   const [category, setCategory] = useState(initial.category);
   const [minPrice, setMinPrice] = useState(initial.minPrice);
   const [maxPrice, setMaxPrice] = useState(initial.maxPrice);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(
+    () => Number(searchParams.get("page")) || 1
+  );
 
   const debouncedSearch = useDebouncedValue(search, 400);
   const debouncedLocation = useDebouncedValue(location, 400);
@@ -85,9 +87,8 @@ export function PropertiesBrowser() {
     router,
   ]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch, debouncedLocation, category, debouncedMin, debouncedMax]);
+  // Any filter change invalidates the current page (avoids empty pages).
+  const resetPage = () => setPage(1);
 
   const filters = {
     search: debouncedSearch || undefined,
@@ -139,7 +140,10 @@ export function PropertiesBrowser() {
           <Input
             id="filter-search"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              resetPage();
+            }}
             placeholder="Studio, pool, balcony…"
             className="pl-9"
           />
@@ -153,7 +157,10 @@ export function PropertiesBrowser() {
           <Input
             id="filter-location"
             value={location}
-            onChange={(event) => setLocation(event.target.value)}
+            onChange={(event) => {
+              setLocation(event.target.value);
+              resetPage();
+            }}
             placeholder="Banani, Dhaka…"
             className="pl-9"
           />
@@ -162,7 +169,13 @@ export function PropertiesBrowser() {
 
       <div className="space-y-2">
         <Label>Property type</Label>
-        <Select value={category} onValueChange={setCategory}>
+        <Select
+          value={category}
+          onValueChange={(value) => {
+            setCategory(value);
+            resetPage();
+          }}
+        >
           <SelectTrigger aria-label="Property type">
             <SelectValue placeholder="All types" />
           </SelectTrigger>
@@ -185,7 +198,10 @@ export function PropertiesBrowser() {
             inputMode="numeric"
             min={0}
             value={minPrice}
-            onChange={(event) => setMinPrice(event.target.value)}
+            onChange={(event) => {
+              setMinPrice(event.target.value);
+              resetPage();
+            }}
             placeholder="Min"
             aria-label="Minimum price"
           />
@@ -195,7 +211,10 @@ export function PropertiesBrowser() {
             inputMode="numeric"
             min={0}
             value={maxPrice}
-            onChange={(event) => setMaxPrice(event.target.value)}
+            onChange={(event) => {
+              setMaxPrice(event.target.value);
+              resetPage();
+            }}
             placeholder="Max"
             aria-label="Maximum price"
           />

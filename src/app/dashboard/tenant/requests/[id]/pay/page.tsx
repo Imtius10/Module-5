@@ -164,7 +164,7 @@ export default function PayRequestPage() {
           </li>
           <li className="flex gap-2">
             <Lock className="mt-0.5 size-4 shrink-0 text-primary" />
-            You'll be redirected to Stripe and brought back here automatically.
+            You&apos;ll be redirected to Stripe and brought back here automatically.
           </li>
         </ul>
 

@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useWatch, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ImagePlus, ListPlus, Save } from "lucide-react";
 import { z } from "zod";
@@ -48,8 +47,6 @@ interface PropertyFormProps {
 
 export function PropertyForm({ mode, property }: PropertyFormProps) {
   const router = useRouter();
-  const [preview, setPreview] = useState<string>(property?.imageUrl ?? "");
-
   const categoriesQuery = useQuery({
     queryKey: queryKeys.categories,
     queryFn: fetchCategories,
@@ -60,7 +57,7 @@ export function PropertyForm({ mode, property }: PropertyFormProps) {
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     reset,
     setError,
     formState: { errors, isSubmitting, isDirty },
@@ -77,12 +74,8 @@ export function PropertyForm({ mode, property }: PropertyFormProps) {
     },
   });
 
-  const imageUrl = watch("imageUrl");
-  const isAvailable = watch("isAvailable");
-
-  useEffect(() => {
-    setPreview(imageUrl || "");
-  }, [imageUrl]);
+  const imageUrl = useWatch({ control, name: "imageUrl" });
+  const isAvailable = useWatch({ control, name: "isAvailable" });
 
   const onSubmit = async (values: PropertyFormValues) => {
     const payload = {
@@ -275,9 +268,9 @@ export function PropertyForm({ mode, property }: PropertyFormProps) {
               <ImagePlus className="size-4 text-primary" /> Cover image
             </h2>
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border/70 bg-muted">
-              {preview ? (
+              {imageUrl ? (
                 <SmartImage
-                  src={preview}
+                  src={imageUrl}
                   alt="Property preview"
                   fill
                   sizes="(max-width: 1024px) 100vw, 340px"
