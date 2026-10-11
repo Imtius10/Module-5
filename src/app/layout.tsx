@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { Providers } from "@/providers";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,6 +22,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "RentNest — Find & List Rental Properties with Ease",
     template: "%s · RentNest",
@@ -28,6 +30,21 @@ export const metadata: Metadata = {
   description:
     "RentNest is a modern rental marketplace. Tenants discover homes, landlords list properties and manage requests, and admins keep the platform safe.",
   keywords: ["rental", "properties", "apartment", "rent", "landlord", "tenant"],
+  openGraph: {
+    type: "website",
+    siteName: "RentNest",
+    title: "RentNest — Find & List Rental Properties with Ease",
+    description:
+      "Discover verified rentals, list your property and manage requests — all in one place.",
+    url: SITE_URL,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RentNest — Find & List Rental Properties with Ease",
+    description:
+      "Discover verified rentals, list your property and manage requests — all in one place.",
+  },
 };
 
 export default function RootLayout({
