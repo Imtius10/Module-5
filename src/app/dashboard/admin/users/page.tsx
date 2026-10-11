@@ -7,7 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Ban, RotateCcw, ShieldCheck } from "lucide-react";
+import { Ban, RotateCcw, Search, ShieldCheck } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -37,6 +38,8 @@ import type { Role, User, UserStatus } from "@/lib/types";
 
 export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"ALL" | Role>("ALL");
   const queryClient = useQueryClient();
   const queryKey = queryKeys.adminUsers(page);
 
@@ -114,12 +117,52 @@ export default function AdminUsersPage() {
 
   const items = query.data?.items ?? [];
 
+  // The API only pages through users, so search/role filtering happens here.
+  const filtered = items.filter((user) => {
+    const needle = search.trim().toLowerCase();
+    const matchesSearch =
+      !needle ||
+      user.name.toLowerCase().includes(needle) ||
+      user.email.toLowerCase().includes(needle);
+    const matchesRole = roleFilter === "ALL" || user.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="User management"
         description="Suspend accounts, restore access or switch a user's role."
       />
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search by name or email…"
+            className="pl-9"
+            aria-label="Search users"
+          />
+        </div>
+        <div className="flex gap-2">
+          {(["ALL", "TENANT", "LANDLORD", "ADMIN"] as const).map((role) => (
+            <button
+              key={role}
+              type="button"
+              onClick={() => setRoleFilter(role)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                roleFilter === role
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {role === "ALL" ? "All roles" : role}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <Card>
         <CardContent className="p-0">
@@ -141,6 +184,25 @@ export default function AdminUsersPage() {
             <div className="p-5">
               <EmptyState icon={ShieldCheck} title="No users found" />
             </div>
+          ) : filtered.length === 0 ? (
+            <div className="p-5">
+              <EmptyState
+                icon={Search}
+                title="No users match your filters"
+                description="Try a different search term or role."
+                action={
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearch("");
+                      setRoleFilter("ALL");
+                    }}
+                  >
+                    Clear filters
+                  </Button>
+                }
+              />
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -154,7 +216,7 @@ export default function AdminUsersPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {items.map((user) => {
+                  {filtered.map((user) => {
                     const blocked = user.activeStatus === "BLOCKED";
                     const isAdmin = user.role === "ADMIN";
                     return (
