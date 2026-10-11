@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, Heart, Linkedin, Twitter } from "lucide-react";
+import { AtSign, Globe, Heart, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/logo";
 
 export function Footer() {
@@ -67,7 +67,7 @@ export function Footer() {
             Need help? Our team replies within one business day.
           </p>
           <div className="mt-4 flex items-center gap-2">
-            {[Github, Twitter, Linkedin].map((Icon, index) => (
+            {[Globe, AtSign, MessageCircle].map((Icon, index) => (
               <span
                 key={index}
                 className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"

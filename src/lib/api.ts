@@ -101,7 +101,7 @@ export async function apiFetch<T>(
   if (body !== undefined) headers["Content-Type"] = "application/json";
 
   if (auth && typeof window !== "undefined") {
-    let token = getAccessToken();
+    let token: string | null | undefined = getAccessToken();
     if (!token) {
       token = await getRefreshedToken();
     }
