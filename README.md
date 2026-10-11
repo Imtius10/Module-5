@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RentNest — Frontend
 
-## Getting Started
+A production-ready rental marketplace UI built with **Next.js (App Router)**, TypeScript, Tailwind CSS v4, shadcn/ui, Framer Motion, TanStack Query and Zustand. It talks to the RentNest REST API and ships role-based dashboards for **tenants**, **landlords** and **admins**, plus Stripe Checkout payments.
 
-First, run the development server:
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # then edit values if needed
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_URL` | `https://rent-nest-api-seven.vercel.app` | Base URL of the RentNest API (no trailing slash) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Local backend instead? Point it at `http://localhost:5000`.
 
-## Learn More
+## Demo credentials
 
-To learn more about Next.js, take a look at the following resources:
+Seeded accounts (see `API_INTEGRATION.md` for the seed command):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | `admin@rentnest.com` | `admin123` |
+| Tenant | `tanvir@tenant.com` | `123456` |
+| Landlord | `imtius1@example.com` | `12345678` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The login screen has a **Use demo account** helper that fills these in.
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Dev server with Turbopack |
+| `npm run build` | Production build (`next build`) |
+| `npm run start` | Serve the production build |
+| `npm run lint` | ESLint (flat config) |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## What's inside
+
+### Public site
+- **Home** — animated hero, category chips, featured listings, testimonials, stats (`src/components/home/sections.tsx`).
+- **Browse** (`/properties`) — debounced search, location, category, min/max price filters, pagination, shareable URL query string, skeletons and empty/error states.
+- **Details** (`/properties/[id]`) — gallery, highlights, description, reviews with pagination, "Request rental" CTA.
+- **About**, **No access** (`/no-access`), global `error.tsx`, `not-found.tsx` and `loading.tsx` boundaries.
+
+### Auth
+- JWT access + refresh tokens in cookies, automatic single-flight refresh, Zustand session store (`src/store/auth.ts`), `Authorization: Bearer` on every request.
+- `src/proxy.ts` guards `/dashboard/*` and `/auth/*` by role — tenants get redirected away from landlord routes and vice-versa.
+
+### Dashboards
+- **Tenant** — overview, rental requests tracker, **Stripe pay page**, payment history, leave reviews.
+- **Landlord** — listing value stats, request approvals with **optimistic UI**, create/edit listings with live image preview, availability toggle, delete with confirm.
+- **Admin** — live statistics, user block/unblock and role switching (optimistic), property moderation with confirm delete, platform-wide rentals table.
+
+### Payments
+`/dashboard/tenant/requests/[id]/pay` → `POST /api/payments/create` → Stripe Checkout → `/payment/success` (session verification) or `/payment/cancel`.
+
+## Project structure
+
+```
+src/
+├── app/                  # App Router pages (public, auth, dashboard, payment)
+├── components/           # ui/ (shadcn), home/, dashboard/, landlord/, properties/
+├── hooks/                # use-auth-actions, use-api-mutation, use-debounced-value
+├── lib/                  # api client, queries, session, types, format, status, images
+├── store/                # Zustand auth store
+└── proxy.ts              # role-based route protection
+```
+
+## State management
+
+- **Server state** — TanStack Query (query keys in `src/lib/queries.ts`, invalidation after mutations, optimistic updates for approve/decline and admin actions).
+- **Client/session state** — Zustand (`src/store/auth.ts`) hydrated from cookies, persisted by the auth actions hook.
+- **URL state** — browse filters live in the query string so results are shareable.
+
+## Deployment
+
+```bash
+# Vercel (recommended)
+npx vercel            # framework auto-detected as Next.js
+```
+
+Set `NEXT_PUBLIC_API_URL` in the project's environment variables, and remember to add the deployed origin to the API's `CORS_ORIGIN` / `FRONTEND_URL` (Stripe redirects back to `FRONTEND_URL/payment/success`).
+
+See `API_INTEGRATION.md` for the full endpoint contract, auth flow and error handling.
