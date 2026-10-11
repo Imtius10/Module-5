@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -22,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { api, errorMessage } from "@/lib/api";
+import { useApiMutation } from "@/hooks/use-api-mutation";
 import { fetchMyPayments, queryKeys } from "@/lib/queries";
 import { formatDate, formatPrice } from "@/lib/format";
 import { toUiStatus } from "@/lib/status";
@@ -52,7 +52,11 @@ export default function PayRequestPage() {
   );
   const alreadyPaid = payment?.status === "PAID";
 
-  const createCheckout = useMutation({
+  // Shared mutation wrapper: consistent toast + error state handling.
+  const createCheckout = useApiMutation<
+    void,
+    { checkoutUrl: string; sessionId: string }
+  >({
     mutationFn: async () => {
       const res = await api.post<{ checkoutUrl: string; sessionId: string }>(
         "/api/payments/create",
@@ -71,10 +75,8 @@ export default function PayRequestPage() {
       }
     },
     onError: (error) => {
-      const message = errorMessage(error);
-      setLocalError(message);
+      setLocalError(errorMessage(error));
       setRedirecting(false);
-      toast.error(message);
     },
   });
 
